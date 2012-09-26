@@ -28,23 +28,21 @@ public class TestServlet extends HttpServlet {
 		try {
 			InitialContext context = new InitialContext();
 			DataSource ds = (DataSource)context.lookup("java:comp/env/jdbc");
+			Connection connection = ds.getConnection();
 			try {
-				Connection connection = ds.getConnection();
+				Statement statement = connection.createStatement();
 				try {
-					Statement statement = connection.createStatement();
-					try {
-						statement.execute("INSERT INTO product(name, price) VALUES('" + name + "'," + price + ")");
-						connection.commit();
-					} finally {
-						statement.close();
-					}
+					statement.execute("INSERT INTO product(name, price) VALUES('" + name + "'," + price + ")");
+					connection.commit();
+				} catch(SQLException e) {
+					connection.rollback();
 				} finally {
-					connection.close();
+					statement.close();
 				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			} finally {
+				connection.close();
 			}
-		} catch (NamingException e) {
+		} catch (NamingException | SQLException e) {
 		    e.printStackTrace();
 		}
 	}
