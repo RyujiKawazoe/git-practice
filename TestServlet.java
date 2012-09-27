@@ -21,10 +21,6 @@ public class TestServlet extends HttpServlet {
 		String name = req.getParameter("name");
 		int price = Integer.parseInt(req.getParameter("price"));
 		
-		res.setCharacterEncoding("UTF-8");
-		PrintWriter writer = res.getWriter();
-		writer.println(name + "(" + price + "円)を追加しました。");
-		
 		try {
 			InitialContext context = new InitialContext();
 			DataSource ds = (DataSource)context.lookup("java:comp/env/jdbc");
@@ -34,6 +30,10 @@ public class TestServlet extends HttpServlet {
 				try {
 					statement.execute("INSERT INTO product(name, price) VALUES('" + name + "'," + price + ")");
 					connection.commit();
+					
+					res.setCharacterEncoding("UTF-8");
+					PrintWriter writer = res.getWriter();
+					writer.println(name + "(" + price + "円)を追加しました。");
 				} catch(SQLException e) {
 					connection.rollback();
 				} finally {
